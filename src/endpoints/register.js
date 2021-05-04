@@ -8,14 +8,15 @@ const register = (req, res) => {
         const password = md5(req.body.password);
         const fullName = req.body.fullName;
 
-        usersTable.findOne({ email: email, password: password, fullName: fullName }, (err, data) => {
+        usersTable.findOne({ email: email }, (err, data) => {
             if (err) {
                 res.json({ status: 'FAIL', error: err });
             } else {
                 if (data === null) {
                     usersTable.insertOne({
                         email: email,
-                        password: password
+                        password: password,
+                        fullName: fullName
                     });
                     res.json({status: 'OK', data: 'REGISTER_SUCCESS'});
                 } else {

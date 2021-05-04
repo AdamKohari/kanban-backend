@@ -9,7 +9,7 @@ const getProjects = (req, res) => {
         }
         const userProjectsTable = global.kanban.collection('userProjects');
 
-        userProjectsTable.find({ userId: userId }, (err, data) => {
+        userProjectsTable.find({users: {$elemMatch: {userId: userId}}}, (err, data) => {
             if (err) {
                 res.json({ status: 'FAIL', error: err });
             } else {
