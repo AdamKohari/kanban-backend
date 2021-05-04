@@ -4,16 +4,17 @@ var md5 = require('md5');
 const register = (req, res) => {
     try {
         const usersTable = global.kanban.collection('users');
-        const username = req.body.username;
+        const email = req.body.email;
         const password = md5(req.body.password);
+        const fullName = req.body.fullName;
 
-        usersTable.findOne({ username: username, password: password }, (err, data) => {
+        usersTable.findOne({ email: email, password: password, fullName: fullName }, (err, data) => {
             if (err) {
                 res.json({ status: 'FAIL', error: err });
             } else {
                 if (data === null) {
                     usersTable.insertOne({
-                        username: username,
+                        email: email,
                         password: password
                     });
                     res.json({status: 'OK', data: 'REGISTER_SUCCESS'});
@@ -25,6 +26,6 @@ const register = (req, res) => {
     } catch (ex) {
         res.json({status: 'FAIL', error: ex.toString()});
     }
-}
+};
 
 exports.register = register;
