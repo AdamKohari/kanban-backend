@@ -35,10 +35,10 @@ const registerModule = require('./endpoints/register');
 const projectsModule = require('./endpoints/projects');
 
 // ENDPOINTS ROUTING
-app.post('/login', loginModule.login);
-app.post('/register', registerModule.register);
+app.post('/rest/login', loginModule.login);
+app.post('/rest/register', registerModule.register);
 
-app.get('/projects', projectsModule.getProjects);
-app.post('/projects', projectsModule.createProject);
+app.get('/rest/projects', projectsModule.getProjects);
+app.post('/rest/projects', projectsModule.createProject);
 
 httpServer.listen(1337, () => console.log('Listening on :1337'));
