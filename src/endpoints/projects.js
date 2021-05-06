@@ -14,10 +14,15 @@ const getProjects = (req, res) => {
                 res.json({ status: 'FAIL', error: err });
             } else {
                 data.toArray((err, result) => {
+                    const toSend = result.map(proj => ({
+                        id: proj._id,
+                        name: proj.name,
+                        shortName: proj.shortName
+                    }));
                     if (err) {
                         res.json({ status: 'FAIL', error: err });
                     } else {
-                        res.json({status: 'OK', data: result});
+                        res.json({status: 'OK', data: toSend});
                     }
                 });
             }
