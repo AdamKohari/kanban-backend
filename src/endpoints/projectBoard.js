@@ -1,6 +1,5 @@
 const auth = require('../other/auth').authAssistant;
 
-// ?op=getBoard
 const getBoard = (req, res) => {
     try {
         const userId = auth(req);
@@ -9,31 +8,70 @@ const getBoard = (req, res) => {
             return;
         }
 
+        const projectId = req.query.projectId;
+
         const projectCardsTable = global.kanban.collection('projectCards');
         
-
+        projectCardsTable.find({projectId: projectId}, (err, data) => {
+            if (err) {
+                res.json({ status: 'FAIL', error: err });
+            } else {
+                data.toArray((err, result) => {
+                    const toSend = result.reduce((output, actual) => {
+                        output[actual.col].push({
+                            id: actual.id,
+                            title: actual.title,
+                            desc: actual.desc,
+                            user: actual.user
+                        });
+                        return output;
+                    }, {
+                        toDo: [],
+                        inProgress: [],
+                        done: []
+                    });
+                    toSend['projectId'] = projectId;
+                    if (err) {
+                        res.json({ status: 'FAIL', error: err });
+                    } else {
+                        res.json({status: 'OK', data: toSend});
+                    }
+                });
+            }
+        });
 
     } catch (ex) {
         res.json({status: 'FAIL', error: ex.toString()});
     }
 };
 
-// projectId => 
-// projectId, 
-// cols: {
-//     toDo: [{title, id, user(fullName), desc}], 
-//     inProgress: [], 
-//     done: []
-// }, 
-// addedPeople: [{fullName, email}]
 
-
-// ?op=createCard
 const createCard = (req, res) => {
+    try {
+        const userId = auth(req);
+        if (!userId) {
+            res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
+            return;
+        }
 
+        const projectCardsTable = global.kanban.collection('projectCards');
+
+        const {projectId, id, user, title, desc} = req.body;
+        projectCardsTable.insertOne({
+            projectId: projectId,
+            id: id,
+            col: 'toDo',
+            user: user,
+            title: title,
+            desc: desc
+        });
+        res.json({status: 'OK', data: 'CARD_CREATION_SUCCESS'});
+
+
+    } catch (ex) {
+        res.json({status: 'FAIL', error: ex.toString()});
+    }
 };
-
-// (title, id, user, desc) => {OK}
 
 
 exports.getBoard = getBoard;

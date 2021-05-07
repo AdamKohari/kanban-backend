@@ -17,7 +17,8 @@ const getProjects = (req, res) => {
                     const toSend = result.map(proj => ({
                         id: proj._id,
                         name: proj.name,
-                        shortName: proj.shortName
+                        shortName: proj.shortName,
+                        addedPeople: proj.users
                     }));
                     if (err) {
                         res.json({ status: 'FAIL', error: err });
@@ -56,7 +57,9 @@ const createProject = (req, res) => {
                     } else {
                         result.forEach(user => {
                             usersArray.push({
-                                userId: user._id.toString()
+                                userId: user._id.toString(),
+                                fullName: user.fullName,
+                                email: user.email
                             });
                         });
 
