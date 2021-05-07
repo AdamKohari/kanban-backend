@@ -23,6 +23,7 @@ const login = (req, res) => {
                         global.authedSessions.push({
                             userId: data._id.toString(),
                             email: data.email,
+                            fullName: data.fullName,
                             authToken: token
                         });
                     }

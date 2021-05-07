@@ -44,7 +44,8 @@ const createProject = (req, res) => {
         const userProjectsTable = global.kanban.collection('userProjects');
         const usersTable = global.kanban.collection('users');
 
-        const usersArray = [{userId: userId}];
+        const self = global.authedSessions.find(session => session.userId === userId);
+        const usersArray = [{userId: self.userId, email: self.email, fullName: self.fullName}];
         const memberEmails = req.body.emails;
 
         usersTable.find({email: {$in: memberEmails}}, (err, data) => {
