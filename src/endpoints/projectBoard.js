@@ -22,7 +22,8 @@ const getBoard = (req, res) => {
                             id: actual.id,
                             title: actual.title,
                             desc: actual.desc,
-                            user: actual.user
+                            user: actual.user,
+                            index: actual.index
                         });
                         return output;
                     }, {
@@ -56,18 +57,23 @@ const createCard = (req, res) => {
 
         const projectCardsTable = global.kanban.collection('projectCards');
 
-        const {projectId, id, user, title, desc} = req.body;
+        const {projectId, id, user, title, desc, index, notifiedPeople} = req.body;
         projectCardsTable.insertOne({
             projectId: projectId,
             id: id,
             col: 'toDo',
             user: user,
             title: title,
-            desc: desc
+            desc: desc,
+            index: index
         });
+
+        notifiedPeople.forEach(person => {
+            global.authedSessions.find(session => session.userId === person.userId)
+                .socket.send({messageType: 'UPDATE', message: ''});
+        });
+
         res.json({status: 'OK', data: 'CARD_CREATION_SUCCESS'});
-
-
     } catch (ex) {
         res.json({status: 'FAIL', error: ex.toString()});
     }

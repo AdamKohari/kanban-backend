@@ -18,11 +18,18 @@ const io = require("socket.io")(httpServer, {
   }
 });
 
+const moveCard = require('./other/cardMove').moveCard;
 io.on("connection", (socket) => {
-  console.log('user connected');
-  socket.on('message', (message) => {
-    console.log(message);
-    socket.send(message);
+  socket.on('message', (packet) => {
+
+    if (packet.messageType === 'CONNECT') {
+      console.log('Connected with token: ' + packet.message);
+      global.authedSessions.find(session => session.authToken === packet.message)['socket'] = socket;
+    }
+
+    if (packet.messageType === 'CARD_MOVED') {
+      moveCard(packet.message);
+    }
   });
 });
 
