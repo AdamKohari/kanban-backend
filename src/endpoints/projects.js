@@ -87,5 +87,28 @@ const createProject = (req, res) => {
     }
 };
 
+const checkEmail = (req, res) => {
+    try {
+        const email = req.body.email;
+        const usersTable = global.kanban.collection('users');
+
+        usersTable.findOne({email: email}, (err, data) => {
+            if (err) {
+                res.json({ status: 'FAIL', error: err });
+            } else {
+                if (data === null) {
+                    res.json({status: 'OK', data: 'NO_USER_FOUND'});
+                } else {
+                    res.json({status: 'OK', data: data.fullName});
+                }
+            }
+        });
+
+    } catch (ex) {
+        res.json({status: 'FAIL', error: ex.toString()});
+    }
+}
+
 exports.getProjects = getProjects;
 exports.createProject = createProject;
+exports.checkEmail = checkEmail;
