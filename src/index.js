@@ -24,6 +24,7 @@ io.on("connection", (socket) => {
 
     if (packet.messageType === 'CONNECT') {
       console.log('Connected with token: ' + packet.message);
+      // store the socket associated with a connected user
       global.authedSessions.find(session => session.authToken === packet.message)['socket'] = socket;
     }
 

@@ -1,3 +1,4 @@
+// handles the case when the user moves a card on the kanban table
 const moveCard = ({projectId, source, destination, id, notifiedPeople}) => {
     try {
         const projectCardsTable = global.kanban.collection('projectCards');
@@ -5,6 +6,7 @@ const moveCard = ({projectId, source, destination, id, notifiedPeople}) => {
             {$set: {col: destination.droppableId}}
         ]);
 
+        // sends notificaion for team members on sockets
         notifiedPeople.forEach(person => {
             global.authedSessions.find(session => session.userId === person.userId)
                 .socket.send({messageType: 'UPDATE', message: ''});

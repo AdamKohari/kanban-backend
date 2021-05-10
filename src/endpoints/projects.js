@@ -45,6 +45,7 @@ const createProject = (req, res) => {
         const usersTable = global.kanban.collection('users');
 
         const self = global.authedSessions.find(session => session.userId === userId);
+        // pre-fill the project team array with the user's data
         const usersArray = [{userId: self.userId, email: self.email, fullName: self.fullName}];
         const memberEmails = req.body.emails;
 
@@ -57,6 +58,7 @@ const createProject = (req, res) => {
                         res.json({ status: 'FAIL', error: err });
                     } else {
                         result.forEach(user => {
+                            // push the selected team members' user data to the project team array
                             usersArray.push({
                                 userId: user._id.toString(),
                                 fullName: user.fullName,
@@ -64,6 +66,7 @@ const createProject = (req, res) => {
                             });
                         });
 
+                        // if a team member's account is not found, throw error
                         if (usersArray.length !== memberEmails.length + 1) {
                             res.json({status: 'FAIL', error: 'INVALID_EMAILS'});
                         } else {

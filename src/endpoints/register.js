@@ -12,6 +12,7 @@ const register = (req, res) => {
             if (err) {
                 res.json({ status: 'FAIL', error: err });
             } else {
+                // if there is no such user, create one, else throw error
                 if (data === null) {
                     usersTable.insertOne({
                         email: email,

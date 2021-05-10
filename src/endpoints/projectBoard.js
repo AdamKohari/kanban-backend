@@ -2,6 +2,7 @@ const auth = require('../other/auth').authAssistant;
 
 const getBoard = (req, res) => {
     try {
+        // using the authAssistant which returns the userId
         const userId = auth(req);
         if (!userId) {
             res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
@@ -17,13 +18,13 @@ const getBoard = (req, res) => {
                 res.json({ status: 'FAIL', error: err });
             } else {
                 data.toArray((err, result) => {
+                    // mapping the db results
                     const toSend = result.reduce((output, actual) => {
                         output[actual.col].push({
                             id: actual.id,
                             title: actual.title,
                             desc: actual.desc,
-                            user: actual.user,
-                            index: actual.index
+                            user: actual.user
                         });
                         return output;
                     }, {
@@ -64,10 +65,10 @@ const createCard = (req, res) => {
             col: 'toDo',
             user: user,
             title: title,
-            desc: desc,
-            index: index
+            desc: desc
         });
 
+        // notify team members using sockets
         notifiedPeople.forEach(person => {
             global.authedSessions.find(session => session.userId === person.userId)
                 .socket.send({messageType: 'UPDATE', message: ''});

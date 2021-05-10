@@ -16,9 +16,11 @@ const login = (req, res) => {
                 } else {
                     let token;
                     const alreadyAuthed = global.authedSessions.find(session => session.email === req.body.email);
+                    // if user has a valid live session, send the existing auth token
                     if (alreadyAuthed) {
                         token = alreadyAuthed.authToken;
                     } else {
+                        // else generate a new one, send it, and also store it in the authedSessions global array
                         token = Math.random().toString(36).substr(2);
                         global.authedSessions.push({
                             userId: data._id.toString(),
