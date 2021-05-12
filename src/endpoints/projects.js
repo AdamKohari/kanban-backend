@@ -1,4 +1,5 @@
 const auth = require('../other/auth').authAssistant;
+const ObjectId = require('mongodb').ObjectId; 
 
 const getProjects = (req, res) => {
     try {
@@ -107,8 +108,58 @@ const checkEmail = (req, res) => {
     } catch (ex) {
         res.json({status: 'FAIL', error: ex.toString()});
     }
-}
+};
+
+const getDetails = (req, res) => {
+    const projectId = req.query.id;
+    if (!auth(req)) {
+        res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
+        return;
+    }
+
+    const userProjectsTable = global.kanban.collection('userProjects');
+    const projectCardsTable = global.kanban.collection('projectCards');
+
+    const respObj = {
+        toDoCount: 0,
+        inProgressCount: 0,
+        doneCount: 0
+    };
+
+    userProjectsTable.findOne({_id: new ObjectId(projectId)}, (err, data) => {
+        if (err) {
+            res.json({ status: 'FAIL', error: err });
+        } else {
+            if (data === null) {
+                res.json({status: 'OK', data: 'NO_PROJECT_FOUND'});
+            } else {
+                respObj['name'] = data.name;
+                respObj['members'] = data.users;
+
+                projectCardsTable.find({projectId: projectId}, (err, data) => {
+                    if (err) {
+                        res.json({ status: 'FAIL', error: err });
+                    } else {
+                        if (data === null) {
+                            res.json({status: 'OK', data: respObj});
+                        } else {
+                            data.toArray((err, cards) => {
+                                res.json({status: 'OK', data: cards.reduce((acc, curr) => {
+                                    return {
+                                        ...acc,
+                                        [curr['col'] + 'Count']: acc[curr['col'] + 'Count'] + 1
+                                    }
+                                }, respObj)});
+                            })
+                        }
+                    }
+                });
+            }
+        }
+    });
+};
 
 exports.getProjects = getProjects;
 exports.createProject = createProject;
 exports.checkEmail = checkEmail;
+exports.getDetails = getDetails;
