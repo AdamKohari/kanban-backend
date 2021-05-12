@@ -1,8 +1,11 @@
 const { MongoClient } = require("mongodb");
 
+const username = 'ASD';
+const password = 'ASD';
+
 async function initMongo() {
     try {
-        const mongoUri = 'mongodb+srv://kohiadi:vanye-kanye@cluster0.e1nsi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+        const mongoUri = `mongodb+srv://${username}:${password}@cluster0.e1nsi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
         const mongoClient = new MongoClient(mongoUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,

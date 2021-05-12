@@ -50,6 +50,7 @@ app.post('/rest/register', registerModule.register);
 app.get('/rest/projects', projectsModule.getProjects);
 app.post('/rest/projects', projectsModule.createProject);
 app.post('/rest/projects/checkMail', projectsModule.checkEmail);
+app.get('/rest/projects/getDetails', projectsModule.getDetails);
 
 app.get('/rest/board', boardModule.getBoard);
 app.post('/rest/board', boardModule.createCard);
