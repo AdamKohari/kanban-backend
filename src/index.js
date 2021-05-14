@@ -3,8 +3,10 @@ const app = express();
 const cors = require('cors');
 const httpServer = require("http").createServer(app);
 
+const authMiddleware = require('./other/auth').authMiddleware;
 app.use(cors());
 app.use(express.json());
+app.use(authMiddleware);
 
 // MONGO INIT
 const initMongo = require('./other/mongo').initMongo;

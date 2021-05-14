@@ -1,21 +1,12 @@
-const auth = require('../other/auth').authAssistant;
-
 const getBoard = (req, res) => {
     try {
-        // using the authAssistant which returns the userId
-        const userId = auth(req);
-        if (!userId) {
-            res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
-            return;
-        }
-
         const projectId = req.query.projectId;
 
         const projectCardsTable = global.kanban.collection('projectCards');
         
         projectCardsTable.find({projectId: projectId}, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 data.toArray((err, result) => {
                     // mapping the db results
@@ -34,7 +25,7 @@ const getBoard = (req, res) => {
                     });
                     toSend['projectId'] = projectId;
                     if (err) {
-                        res.json({ status: 'FAIL', error: err });
+                        res.status(500).json({ status: 'FAIL', error: err });
                     } else {
                         res.json({status: 'OK', data: toSend});
                     }
@@ -43,22 +34,16 @@ const getBoard = (req, res) => {
         });
 
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 
 
 const createCard = (req, res) => {
     try {
-        const userId = auth(req);
-        if (!userId) {
-            res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
-            return;
-        }
-
         const projectCardsTable = global.kanban.collection('projectCards');
 
-        const {projectId, id, user, title, desc, index, notifiedPeople} = req.body;
+        const {projectId, id, user, title, desc, notifiedPeople} = req.body;
         projectCardsTable.insertOne({
             projectId: projectId,
             id: id,
@@ -76,7 +61,7 @@ const createCard = (req, res) => {
 
         res.json({status: 'OK', data: 'CARD_CREATION_SUCCESS'});
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 
