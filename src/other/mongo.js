@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 
-const username = 'ASD';
-const password = 'ASD';
+const username = 'UN';
+const password = 'PW';
 
 async function initMongo() {
     try {

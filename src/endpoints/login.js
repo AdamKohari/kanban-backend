@@ -9,10 +9,10 @@ const login = (req, res) => {
 
         usersTable.findOne({ email: email, password: password }, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 if (data === null) {
-                    res.json({status: 'FAIL', error: 'EMAIL_OR_PASSWORD_INVALID'});
+                    res.status(401).json({status: 'FAIL', error: 'EMAIL_OR_PASSWORD_INVALID'});
                 } else {
                     let token;
                     const alreadyAuthed = global.authedSessions.find(session => session.email === req.body.email);
@@ -38,7 +38,7 @@ const login = (req, res) => {
             }
         });
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 

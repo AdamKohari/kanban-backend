@@ -10,7 +10,7 @@ const register = (req, res) => {
 
         usersTable.findOne({ email: email }, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 // if there is no such user, create one, else throw error
                 if (data === null) {
@@ -21,12 +21,12 @@ const register = (req, res) => {
                     });
                     res.json({status: 'OK', data: 'REGISTER_SUCCESS'});
                 } else {
-                    res.json({ status: 'FAIL', error: 'USER_EXISTS' });
+                    res.status(409).json({ status: 'FAIL', error: 'USER_EXISTS' });
                 }
             }
         });
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 

@@ -1,18 +1,14 @@
-const auth = require('../other/auth').authAssistant;
 const ObjectId = require('mongodb').ObjectId; 
 
 const getProjects = (req, res) => {
     try {
-        const userId = auth(req);
-        if (!userId) {
-            res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
-            return;
-        }
+        // getting the userId from the authMiddleware
+        const userId = res.locals.userId;
         const userProjectsTable = global.kanban.collection('userProjects');
 
         userProjectsTable.find({users: {$elemMatch: {userId: userId}}}, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 data.toArray((err, result) => {
                     const toSend = result.map(proj => ({
@@ -22,7 +18,7 @@ const getProjects = (req, res) => {
                         addedPeople: proj.users
                     }));
                     if (err) {
-                        res.json({ status: 'FAIL', error: err });
+                        res.status(500).json({ status: 'FAIL', error: err });
                     } else {
                         res.json({status: 'OK', data: toSend});
                     }
@@ -30,18 +26,15 @@ const getProjects = (req, res) => {
             }
         });
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 
 
 const createProject = (req, res) => {
     try {
-        const userId = auth(req);
-        if (!userId) {
-            res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
-            return;
-        }
+        const userId = res.locals.userId;
+
         const userProjectsTable = global.kanban.collection('userProjects');
         const usersTable = global.kanban.collection('users');
 
@@ -52,11 +45,11 @@ const createProject = (req, res) => {
 
         usersTable.find({email: {$in: memberEmails}}, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 data.toArray((err, result) => {
                     if (err) {
-                        res.json({ status: 'FAIL', error: err });
+                        res.status(500).json({ status: 'FAIL', error: err });
                     } else {
                         result.forEach(user => {
                             // push the selected team members' user data to the project team array
@@ -69,7 +62,7 @@ const createProject = (req, res) => {
 
                         // if a team member's account is not found, throw error
                         if (usersArray.length !== memberEmails.length + 1) {
-                            res.json({status: 'FAIL', error: 'INVALID_EMAILS'});
+                            res.status(400).json({status: 'FAIL', error: 'INVALID_EMAILS'});
                         } else {
                             userProjectsTable.insertOne({
                                 users: usersArray,
@@ -84,7 +77,7 @@ const createProject = (req, res) => {
             }
         });
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 
@@ -95,7 +88,7 @@ const checkEmail = (req, res) => {
 
         usersTable.findOne({email: email}, (err, data) => {
             if (err) {
-                res.json({ status: 'FAIL', error: err });
+                res.status(500).json({ status: 'FAIL', error: err });
             } else {
                 if (data === null) {
                     res.json({status: 'OK', data: 'NO_USER_FOUND'});
@@ -106,16 +99,12 @@ const checkEmail = (req, res) => {
         });
 
     } catch (ex) {
-        res.json({status: 'FAIL', error: ex.toString()});
+        res.status(500).json({status: 'FAIL', error: ex.toString()});
     }
 };
 
 const getDetails = (req, res) => {
     const projectId = req.query.id;
-    if (!auth(req)) {
-        res.json({status: 'FAIL', error: 'UNAUTHORIZED'});
-        return;
-    }
 
     const userProjectsTable = global.kanban.collection('userProjects');
     const projectCardsTable = global.kanban.collection('projectCards');
@@ -128,17 +117,17 @@ const getDetails = (req, res) => {
 
     userProjectsTable.findOne({_id: new ObjectId(projectId)}, (err, data) => {
         if (err) {
-            res.json({ status: 'FAIL', error: err });
+            res.status(500).json({ status: 'FAIL', error: err });
         } else {
             if (data === null) {
-                res.json({status: 'OK', data: 'NO_PROJECT_FOUND'});
+                res.status(404).json({status: 'FAIL', data: 'NO_PROJECT_FOUND'});
             } else {
                 respObj['name'] = data.name;
                 respObj['members'] = data.users;
 
                 projectCardsTable.find({projectId: projectId}, (err, data) => {
                     if (err) {
-                        res.json({ status: 'FAIL', error: err });
+                        res.status(500).json({ status: 'FAIL', error: err });
                     } else {
                         if (data === null) {
                             res.json({status: 'OK', data: respObj});
